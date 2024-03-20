@@ -96,7 +96,7 @@ def depthFirstSearch(problem: SearchProblem):
 
     frontier.push([problem.getStartState(), []]) # [] denotes initial path, kept both values in a list. 
 
-    while not frontier.isEmpty(): # this signals the termination condition, if the frontier is empty it means there is no solution
+    while not frontier.isEmpty(): # this indicates the termination condition, if the frontier is empty it means there is no solution
 
         state, path = frontier.pop() # the stack stores state and path values 
 
@@ -126,7 +126,7 @@ def breadthFirstSearch(problem: SearchProblem):
 
     frontier.push([problem.getStartState(), []]) # [] denotes initial path, kept both values in a list. 
 
-    while not frontier.isEmpty(): # this signals the termination condition, if the frontier is empty it means there is no solution
+    while not frontier.isEmpty(): # this indicates the termination condition, if the frontier is empty it means there is no solution
 
         state, path = frontier.pop() # the queue stores state and path values 
 
@@ -154,7 +154,7 @@ def uniformCostSearch(problem: SearchProblem):
 
     frontier.push([problem.getStartState(), [], 0], 0) # [] denotes initial path, 0 for starting value.  
 
-    while not frontier.isEmpty(): # this signals the termination condition, if the frontier is empty it means there is no solution
+    while not frontier.isEmpty(): # this indicates the termination condition, if the frontier is empty it means there is no solution
 
         state, path, cost = frontier.pop() # the queue stores state and path values 
 
@@ -191,7 +191,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     frontier.push([problem.getStartState(), [], 0], 0 + heuristic(problem.getStartState(), problem)) # [] denotes initial path, 0 for starting value.  
 
-    while not frontier.isEmpty(): # this signals the termination condition, if the frontier is empty it means there is no solution
+    while not frontier.isEmpty(): # this indicates the termination condition, if the frontier is empty it means there is no solution
 
         state, path, cost = frontier.pop() # the queue stores state and path values 
 
@@ -206,7 +206,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         for neighbor in problem.getSuccessors(state): # if not, we continue with it's neighbors 
             if neighbor[0] not in visited: # check if visited 
                 frontier.push([neighbor[0], path + [neighbor[1]], cost + neighbor[2]], cost + neighbor[2] + heuristic(neighbor[0], problem)) # add state, new path, and priority value.
-                # not that the new priority value is f = g + h where g is the cumulative cost and h is the heuristic
+                # note that the new priority value is f = g + h where g is the cumulative cost and h is the heuristic
 
 
 

@@ -295,7 +295,7 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        collected_dots = [0, 0, 0, 0] # four corners.
+        collected_dots = [0, 0, 0, 0] # four corners
         return (self.startingPosition, collected_dots)
 
     def isGoalState(self, state: Any):
@@ -383,15 +383,15 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     
     current_position = state[0]
     corner_visit_info = state[1]
-
+    # Manhattan distance to corners can be a heuristic. 
     # Add distances from current location to each corner into list for the corners not visited. 
     distance_to_unvisited_corners = []
     for i in range(len(corners)):
         corner = corners[i] # for each corner 
         if corner_visit_info[i] == 0: # check if it's not visited 
             distance_to_unvisited_corners.append(manhattanDistance(current_position, corner))
-
-    return max(distance_to_unvisited_corners) # thought of making it sum but it exceeds actual goal cost. 
+    # Max of admissible heuristics is admissible (lecture notes)
+    return max(distance_to_unvisited_corners) 
     
     
     
@@ -525,7 +525,7 @@ class ClosestDotSearchAgent(SearchAgent):
         "*** YOUR CODE HERE ***"
 
         # Since we need to explore the closest dot we can use BFS. 
-        # BFS gurantees shortest path 
+        # BFS gurantees shortest path (e.g optimal)
         from search import breadthFirstSearch
 
         return breadthFirstSearch(problem)
