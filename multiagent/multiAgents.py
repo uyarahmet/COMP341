@@ -75,7 +75,28 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        
+        food_distances = [manhattanDistance(food, newPos) for food in newFood.asList()] # successor food distances 
+        ghost_distances = [manhattanDistance(ghost.getPosition(), newPos) for ghost in newGhostStates] # successor ghost positions 
+        current_state = currentGameState.getPacmanPosition() # current pacman state 
+
+        if len(food_distances) == 0: # all food pellets have been collected                                                 
+            return 100  
+
+        if current_state == newPos: # avoid staying still 
+            return -100 
+
+        for ghost_distance in ghost_distances: # avoid getting closer to ghosts                                                
+            if ghost_distance <= 1 and min(newScaredTimes) == 0: # run away if ghosts aren't scared 
+                return -100
+                                               
+        remaining_foods = len(food_distances) # number of remaining food pellets.
+        total_distance_to_foods = sum(food_distances) # total distance to all remaining food pellets. I added this one because remaining_foods was not enough itself and pacman got stuck.            
+
+        #return 1 / remaining_foods                                                               
+        return 1 / remaining_foods + 1 / total_distance_to_foods # we add there reciprocals to reward states that the two values are smaller. 
+
+
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
@@ -136,8 +157,54 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
+        def is_terminal_state(gameState, agentIndex, depth): # terminal state checker 
+            
+            return len(gameState.getLegalActions(agentIndex)) == 0 or gameState.isWin() or gameState.isLose() or depth == self.depth
+                
+        
+        def max_value(gameState, depth):
+    
+            if is_terminal_state(gameState, 0, depth):
+                return self.evaluationFunction(gameState), None
+            
+            v = float("-inf") # initialize -inf for max 
+            next_action = None
+
+            for action in gameState.getLegalActions(0): # iterate all the actions 
+                successor_state = gameState.generateSuccessor(0, action)
+                successor_value = min_value(successor_state, 1, depth)[0] # call min for specific branch 
+                if successor_value > v:
+                    v = successor_value # find the maximum of all branches 
+                    next_action = action # the required action to go there 
+
+            return v, next_action
+        
+        def min_value(gameState, agentIndex, depth):
+
+            if is_terminal_state(gameState, agentIndex, depth):
+                return self.evaluationFunction(gameState), None 
+
+            v = float("inf") # initialize +inf for min 
+            next_action = None
+
+            for action in gameState.getLegalActions(agentIndex): # iterate all the actions
+                successor_state = gameState.generateSuccessor(agentIndex, action)
+
+                if agentIndex == gameState.getNumAgents() - 1: # this is pacman! so we max 
+                    successor_value = max_value(successor_state, depth + 1)[0]
+                else: # rest are ghosts, we min 
+                    successor_value = min_value(successor_state, agentIndex + 1, depth)[0]
+
+                if successor_value < v:
+                    v = successor_value # find minimum of all branches 
+                    next_action = action # the required action to go there
+
+            return v, next_action
+        
+        next_action = max_value(gameState, 0)[1]
+        return next_action
+                    
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -173,7 +240,27 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacman_position = currentGameState.getPacmanPosition()
+    ghost_positions = currentGameState.getGhostPositions()
+    ghost_states = currentGameState.getGhostStates()
+    food_list = currentGameState.getFood().asList()
+    capsules = currentGameState.getCapsules()
+
+    current_score = scoreEvaluationFunction(currentGameState)
+
+    if currentGameState.isWin():
+        return 1000
+    elif currentGameState.isLose():
+        return -1000
+    
+    closest_food = min([manhattanDistance(food, pacman_position) for food in food_list])
+    closest_scared_ghost = min([manhattanDistance(ghost, pacman_position) for ghost in ghost_positions if ghost.scaredTimer == 0])
+    closest_normal_ghost = min([manhattanDistance(ghost, pacman_position) for ghost in ghost_positions if ghost.scaredTimer > 0])
+
+    current_score -= 1.5 * closest_food + 2 * (1.0 / closest_normal_ghost) + 2 * closest_scared_ghost + 20 * len(capsules) + 4 * len(food_list)
+    return current_score
+
+
 
 # Abbreviation
 better = betterEvaluationFunction
